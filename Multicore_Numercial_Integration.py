@@ -6,14 +6,14 @@ while True:
 
     @vectorize(['float32(float32,float32)'],target = 'parallel')
     def func(x,y): # returns outputs from x and y arrays
-        return np.log(x*y)
+        return np.log(x*y) # function of x and y to be integrated
 
     @vectorize(['float32(float32,float32)'],target = 'parallel')
     def zdA(z,dA):
-        return z*dA
+        return z*dA #multiplies z values by differential areas
 
     @jit
-    def gen_inputs(a,b,c,d,num_dx,num_dy): # returns array of x inputs and array of y inputs
+    def gen_inputs(a,b,c,d,num_dx,num_dy): # returns array of x inputs and array of y inputs to be plugged into "func(x,y)"
         x = np.linspace(a, b, num_dx, endpoint=True)
         y = np.linspace(c, d, num_dy, endpoint=True)
 
