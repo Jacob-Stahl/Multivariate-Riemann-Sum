@@ -33,7 +33,7 @@ while True:
 
         return out_x , out_y
 
-    def surface_area(z,dx,dy):
+    def surface_area(z,dx,dy): # still needs more testing, results become more unreliable when function becomes more "rough"
         z1 = z[0:-1,0:-1]   #  z1  z2
         z2 = z[0:-1,1:  ]   #  z3  z4
         z3 = z[1:  ,0:-1]
