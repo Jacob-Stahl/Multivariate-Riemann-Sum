@@ -1,39 +1,31 @@
 import numpy as np
+import math
 from  numba import jit, vectorize
 import matplotlib.pyplot as plt
 
 while True:
 
-    @vectorize(['float32(float32,float32)'],target = 'parallel')
-    def func(x,y): # returns outputs from x and y arrays
-        return np.log(x*y) # function of x and y to be integrated
+    input_func = str(input("input function of x and y : "))
 
     @vectorize(['float32(float32,float32)'],target = 'parallel')
     def zdA(z,dA):
-        return z*dA #multiplies z values by differential areas
+        return z*dA
 
-    @jit
-    def gen_inputs(a,b,c,d,num_dx,num_dy): # returns array of x inputs and array of y inputs to be plugged into "func(x,y)"
-        x = np.linspace(a, b, num_dx, endpoint=True)
-        y = np.linspace(c, d, num_dy, endpoint=True)
+    def eval_function(a,b,c,d,num_dx,num_dy): # returns array of outputs within the specified limits
+        xin = np.linspace(a, b, num_dx, endpoint=True)
+        yin = np.linspace(c, d, num_dy, endpoint=True)
 
-        out_x = np.zeros((num_dx,num_dy),dtype=np.float32)
-        out_y = np.zeros((num_dx,num_dy),dtype=np.float32)
+        z = np.zeros((num_dx,num_dy),dtype=np.float32)
 
         for i in range(num_dx):
-            out_x[:][i] = x
-        for i in range(num_dy):
-            out_y[i][:] = y
-        out_y = np.transpose(out_y)
+            for j in range(num_dy):
+                x = xin[i]
+                y = yin[j]
+                z[i][j] = eval(input_func)
 
-        print(out_y , '  out_y')
-        print()
-        print(out_x , '  out_x')
-        print()
+        return z
 
-        return out_x , out_y
-
-    def surface_area(z,dx,dy): # still needs more testing, results become more unreliable when function becomes more "rough"
+    def surface_area(z,dx,dy):
         z1 = z[0:-1,0:-1]   #  z1  z2
         z2 = z[0:-1,1:  ]   #  z3  z4
         z3 = z[1:  ,0:-1]
@@ -56,18 +48,17 @@ while True:
     limit_c = float(input('limit c: '))
     limit_d = float(input('limit d: '))
 
-    num_dx = int(5000)
-    num_dy = int(5000)
+    num_dx = int(500)
+    num_dy = int(500)
 
-    dx      = (limit_b - limit_a) / (num_dx)
+    dx      = (limit_b - limit_a) / (num_dx) # differential for volume
     dy      = (limit_d - limit_c) / (num_dy)
-    surf_dx = (limit_b - limit_a) / (num_dx -1)
+    surf_dx = (limit_b - limit_a) / (num_dx -1) # differential for surface area
     surf_dy = (limit_d - limit_c) / (num_dy -1)
     
-    dA = dx*dy
+    dA = dx*dy # differential area
 
-    x, y = gen_inputs(limit_a,limit_b,limit_c,limit_d,num_dx,num_dy)
-    z = func(x,y)
+    z = eval_function(limit_a,limit_b,limit_c,limit_d,num_dx,num_dy)
 
     volume   = np.sum(zdA(z,dA))
     surf_a   = surface_area(z,surf_dx,surf_dy)
